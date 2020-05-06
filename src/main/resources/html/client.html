@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>前端页面</title>
+</head>
+<body>
+<div style="position: relative;">
+    <img id="bgImg" src="">
+    <img id="pieceImg" src="verifyPiecepng.png" style="position: absolute;left: 0px;">
+</div>
+<div>
+    <input id="slider" type="range" min="0" max="100" value="0" hidden="true"/>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+<script>
+    var bgImg = $("#bgImg")[0];
+    var pieceImg = $("#pieceImg")[0];
+    var slider = $("#slider")[0];
+
+    //data:image/gif;base64,base64编码的gif图片数据
+    //data:image/png;base64,base64编码的png图片数据
+    //data:image/jpeg;base64,base64编码的jpeg图片数据
+    //data:image/x-icon;base64,base64编码的icon图片数据
+    var imgType = "data:image/png;base64,";
+    var imgBase64Str = "";
+    $.post("http://localhost:8080/getImage", function (result) {
+        imgBase64Str = result;
+        var str = imgType + imgBase64Str;
+        bgImg.onload = function () {
+            slider.style.width = bgImg.width + "px";
+            slider.max = bgImg.width;
+            slider.hidden = false;
+        };
+        bgImg.src = str;
+    });
+
+    slider.oninput = function (e) {
+        var x = Number(slider.value) - pieceImg.width / 2;
+        pieceImg.style.left = x + "px";
+    };
+
+    slider.onchange = function (e) {
+        var x = Math.floor(slider.value);
+
+        $.post("http://localhost:8080/verify?x=" + x + "&y=1", function (result) {
+            if (result == "success") {
+                alert("成功");
+            } else {
+                alert("失败");
+            }
+        });
+    };
+</script>
+</body>
+</html>
